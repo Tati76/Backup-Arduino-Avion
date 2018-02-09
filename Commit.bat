@@ -14,23 +14,14 @@ REM start /d %git% (cd %project% ) REM && git status && git add * && git commit 
 REM && git --no-pager log -n 5 && cmd /k cd %project%)"
 
 @echo off
-echo type "commit" or "update"
+echo type "commit"
 cd "curl"
 
 set GIT_PATH="C:\Program Files\Git\bin\git.exe"
 set BRANCH = "origin"
 
-:P
-set ACTION=
-set /P ACTION=Action: %=%
-if "%ACTION%"=="c" (
-  %GIT_PATH% add -A
-	%GIT_PATH% commit -am "Auto-committed on %date%"
-	%GIT_PATH% pull %BRANCH%
-	%GIT_PATH% push %BRANCH%
-)
-if "%ACTION%"=="u" (
-	%GIT_PATH% pull %BRANCH%
-)
-if "%ACTION%"=="exit" exit /b
-goto P
+%GIT_PATH% add -A
+%GIT_PATH% commit -am "Auto-committed on %date%"
+%GIT_PATH% pull %BRANCH%
+%GIT_PATH% push %BRANCH%
+exit /b
