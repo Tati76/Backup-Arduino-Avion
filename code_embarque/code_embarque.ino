@@ -67,7 +67,7 @@ typedef struct{
   uint8_t RUn; // servoEmpLacet 
   uint8_t XRoulis; // servoAileGauche et servoAileDroite
   uint8_t YRoulis; // servoDroiteStab et servoGaucheStab
-  bool trainAtterissage; // si train d'atterissage alors aide à l'atterissage/decollage
+  bool decollage; // si train d'atterissage alors aide à l'atterissage/decollage
   
 } Donnees;
 
@@ -85,7 +85,7 @@ void fairePrintMessage(Donnees &message)
   Serial.print(",");
   Serial.print(message.YRoulis);
   Serial.print(",");
-  Serial.print(message.trainAtterissage);
+  Serial.print(message.decollage);
   Serial.print("]");
 }
 
@@ -159,7 +159,7 @@ Donnees ecouterRadio()
 	  servoGaucheStab.write(map(message.YRoulis, 0, 255, ANGLE_MIN_ROULIS+ANGLE_SECU_SERVO, ANGLE_MAX_ROULIS+ANGLE_SECU_SERVO));
 	
 	//Train d'atterissage
-	if (message.trainAtterissage == 1)
+	if (message.decollage == 1)
 	{
 		trainAtterissage.write(ANGLE_MAX_TRAIN_ATTERISSAGE); // ON ABAISSE LE TRAIN D'ATTERISSAGE
 		servoAideDecollageGauche.write(ANGLE_SECU_SERVO + ANGLE_MAX_AIDE_DECOLLAGE); // ON ABAISSE LES VOLETS POUR AUGMENTER LA PORTANCE
@@ -188,7 +188,7 @@ Donnees ecouterRadio()
   Serial.print(",");
   Serial.print(servoDroiteStab.read());
   Serial.print(",");
-  Serial.print(trainAtterissage.read());
+  Serial.print(decollage.read());
   Serial.println("]]");*/
   
 	temps = millis();

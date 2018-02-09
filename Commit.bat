@@ -1,18 +1,3 @@
-REM git add *
-REM git commit -m ""
-REM git push -u origin master
-
-
-REM @echo off
- 
-REM title Project
- 
-REM set project="C:\Users\vince\Desktop\Git Code Arduino Avion"
-REM set git="C:\Program Files\Git\bin" sh.exe -l
- 
-REM start /d %git% (cd %project% ) REM && git status && git add * && git commit -m "Auto commit" && git push -u origin master) 
-REM && git --no-pager log -n 5 && cmd /k cd %project%)"
-
 @echo off
 echo type "commit"
 cd "curl"

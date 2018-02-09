@@ -31,7 +31,7 @@ USB Usb;
 PS4USB PS4(&Usb);
 
 uint8_t ancienEtatL3;
-bool trainAtterissage;
+bool decollage;
 
 typedef struct{
   uint8_t Acc;
@@ -39,7 +39,7 @@ typedef struct{
   uint8_t RUn;
   uint8_t XRoulis;
   uint8_t YRoulis;
-  bool trainAtterissage;
+  bool decollage;
 } Donnees;
 
 
@@ -116,7 +116,7 @@ void setup() {
 
 	// VARIABLES pour le programme 
 	ancienEtatL3 = 0;
-	trainAtterissage = true;
+	decollage = true;
 }
 
 // ------------------------------------------------------------------
@@ -146,7 +146,7 @@ void loop() {
 	// REGARDER SI LE TRAIN D'ATTERRISSAGE DOIT RESTER SORTI OU RENTRER
 	if ( PS4.getButtonClick(L3))
 	{
-		trainAtterissage = !trainAtterissage;
+		decollage = !decollage;
 	}
     
 	// ACCELERATEUR
@@ -163,7 +163,7 @@ void loop() {
     msg.XRoulis = PS4.getAnalogHat(LeftHatX);
 	
 	// SORTIE DU TRAIN D'ATTERRISSAGE
-	msg.trainAtterissage = trainAtterissage;
+	msg.decollage = decollage;
 	
     // ENVOI DU MESSAGE PAR LE MODULE NRF24L01+
     envoyerMessage(msg);
@@ -179,7 +179,7 @@ void loop() {
     Serial.print(",");
     Serial.print(msg.YRoulis);
     Serial.print(",");
-    Serial.print(msg.trainAtterissage);
+    Serial.print(msg.decollage);
     Serial.println("]");*/
 
   }
