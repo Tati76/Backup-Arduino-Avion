@@ -291,20 +291,33 @@ void setup() {
 
 void testFunction()
 {
-    for (int i(0) ; i<10 ; i++)
-  {
-    Serial.print(i);
-    servoAileDroite.write(90);
-    Serial.print(servoAileDroite.read());
-    //delay(2000);
-    moteur.write(90);
-    delay(1000);
-    servoAileDroite.write(10);
-    //delay(2000);
-    moteur.write(10);
-    delay(1000);
-    Serial.println(servoAileDroite.read());
-  }
+    servoEmpLacet.write(ANGLE_SECU_SERVO);  
+    servoAileDroite..write(ANGLE_SECU_SERVO);  
+    servoAileGauche.write(ANGLE_SECU_SERVO);  
+    servoAideDecollageGauche.write(ANGLE_SECU_SERVO);  
+    servoAideDecollageDroite.write(ANGLE_SECU_SERVO);  
+    moteurExtDroite.attach(ACC_MIN_MOTEUR);
+    moteurIntDroite.attach(ACC_MIN_MOTEUR);
+    moteurIntGauche.attach(ACC_MIN_MOTEUR);
+    moteurExtGauche.attach(ACC_MIN_MOTEUR);
+    servoGaucheStab.write(ANGLE_SECU_SERVO);  
+    servoDroiteStab.write(ANGLE_SECU_SERVO);  
+    trainAtterissage.write(ANGLE_SECU_SERVO);  
+
+    delay(5000);
+
+    servoEmpLacet.write(ANGLE_SECU_SERVO+20);  
+    servoAileDroite..write(ANGLE_SECU_SERVO+20);  
+    servoAileGauche.write(ANGLE_SECU_SERVO+20);  
+    servoAideDecollageGauche.write(ANGLE_SECU_SERVO+20);  
+    servoAideDecollageDroite.write(ANGLE_SECU_SERVO+20);  
+    moteurExtDroite.attach(ACC_MAX_MOTEUR);
+    moteurIntDroite.attach(ACC_MAX_MOTEUR);
+    moteurIntGauche.attach(ACC_MAX_MOTEUR);
+    moteurExtGauche.attach(ACC_MAX_MOTEUR);
+    servoGaucheStab.write(ANGLE_SECU_SERVO+20);  
+    servoDroiteStab.write(ANGLE_SECU_SERVO+20);  
+    trainAtterissage.write(ANGLE_SECU_SERVO+20);  
 }
 
 void loop() {
