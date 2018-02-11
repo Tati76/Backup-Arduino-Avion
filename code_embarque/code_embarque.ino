@@ -2,45 +2,26 @@
 #include <SPI.h>
 #include <RF24.h> // voir http://tmrh20.github.io/RF24/
 #include <Servo.h>
-
-
-//#define LED_PIN (4)  
-
 // Variables pour les angles des ailettes
 #define ANGLE_MAX_AILETTE_AILE_GAUCHE 60
 #define ANGLE_MIN_AILETTE_AILE_GAUCHE -60
 #define ANGLE_MAX_AILETTE_AILE_DROITE 60
 #define ANGLE_MIN_AILETTE_AILE_DROITE -60 
-#define ANGLE_MAX_AIDE_DECOLLAGE 60
+#define ANGLE_MAX_VOLET_HYPERSUSTENTATEUR 60
+#define ANGLE_MIN_ROULIS -60
+#define ANGLE_MAX_ROULIS 60
 #define ANGLE_MAX_LACET 50 //R1 | L1
 #define ANGLE_MIN_LACET -50 //R1 | L1
-#define ANGLE_MAX_ROULIS 50 // angle vertical joystick
-#define ANGLE_MIN_ROULIS -50 // angle vertical joystick
 #define ACC_MAX_MOTEUR 2000
+#define ACC_TEST_MOTEUR 1500
 #define ACC_MIN_MOTEUR 1000
 #define ANGLE_MAX_TRAIN_ATTERISSAGE 170
 #define ANGLE_MIN_TRAIN_ATTERISSAGE 10
 #define ANGLE_SECU_SERVO 90
 
-//#define PAS_SERVO 5
-
-// Configurer vos radio nRF24L01+ sur le bus SPI et mettre  CE sur D7 et CSN sur D8
-RF24 radio(7, 8);
-
-// Le nom des "pipes" de communication, un en lecture, un en écriture
-const byte adresses[][6] = {"0pipe", "1pipe"}; // Pipes 1-5 should share the same address, except the first byte. Only the first byte in the array should be unique
-
-// A CONFIGURER sur la pin A0
-// si A0 est à GND alors rôle = 0 --> le premier Arduino
-// si A0 est à  3.3V ou 5V alors rôle = 1 --> pour le second
-const byte configurationPin = A0;
-uint8_t role;
-
-
-
-
-
 unsigned long temps;
+
+
 
 // ********************************** SERVO *************************************
 
@@ -60,6 +41,10 @@ Servo trainAtterissage;
 
 
 // *********************************** RADIO ************************************
+// Configurer vos radio nRF24L01+ sur le bus SPI et mettre  CE sur D7 et CSN sur D8
+RF24 radio(7, 8);
+const byte adresses[][6] = {"0pipe", "1pipe"}; 
+uint8_t role;
 
 typedef struct{
   uint8_t Acc; //moteur
@@ -72,46 +57,33 @@ typedef struct{
 } Donnees;
 
 
-void fairePrintMessage(Donnees &message)
-{
-  Serial.print("[");
-  Serial.print(message.Acc);
-  Serial.print(",");
-  Serial.print(message.LUn);
-  Serial.print(",");
-  Serial.print(message.RUn);
-  Serial.print(",");
-  Serial.print(message.XRoulis);
-  Serial.print(",");
-  Serial.print(message.YRoulis);
-  Serial.print(",");
-  Serial.print(message.decollage);
-  Serial.print("]");
-}
-
 void printEtatSorties()
 {
-  Serial.print("[");
-  Serial.print(digitalRead(A0));
-  Serial.print(",");
-  Serial.print(digitalRead(A1));
-  Serial.print(",");
-  Serial.print(digitalRead(A2));
-  Serial.print(",");
-  Serial.print(digitalRead(A3));
-  Serial.print(",");
-  Serial.print(digitalRead(A4));
-  Serial.print(",");
-  Serial.print(digitalRead(A5));
-  Serial.print(",");
-  Serial.print(digitalRead(1));
-  Serial.print(",");
-  Serial.print(digitalRead(2));
-  Serial.print(",");
-  Serial.print(digitalRead(3));
-  Serial.print(",");
-  Serial.print(digitalRead(4));
-  Serial.print("]");
+  Serial.print('[');
+  Serial.print(servoEmpLacet.read());
+  Serial.print(',');
+  Serial.print(servoAileDroite.read());
+  Serial.print(',');
+  Serial.print(servoAileGauche.read());
+  Serial.print(',');
+  Serial.print(servoAideDecollageGauche.read());
+  Serial.print(',');
+  Serial.print(servoAideDecollageDroite.read());
+  Serial.print(',');
+  Serial.print(moteurExtDroite.read());
+  Serial.print(',');
+  Serial.print(moteurIntDroite.read());
+  Serial.print(',');
+  Serial.print(moteurIntGauche.read());
+  Serial.print(',');
+  Serial.print(moteurExtGauche.read());
+  Serial.print(',');
+  Serial.print(servoDroiteStab.read());
+  Serial.print(',');
+  Serial.print(servoGaucheStab.read());
+  Serial.print(',');
+  Serial.print(trainAtterissage.read());
+  Serial.println(']');
 }
 
 
@@ -142,7 +114,6 @@ Donnees ecouterRadio()
     while (radio.available()) {
       radio.read( &message, sizeof(Donnees) );  // on lit l'octet reçu (si plusieurs messages on ne conserve que le dernier)
     }
-    fairePrintMessage(message);
   
     //SERVO ANGLE LACET
 	if (message.LUn == 0 && message.RUn == 255 )
@@ -172,12 +143,6 @@ Donnees ecouterRadio()
     moteurIntGauche.writeMicroseconds(map(message.Acc, 0, 255, ACC_MIN_MOTEUR, ACC_MAX_MOTEUR)); 
     moteurExtGauche.writeMicroseconds(map(message.Acc, 0, 255, ACC_MIN_MOTEUR, ACC_MAX_MOTEUR)); 
 
-
-
-
-
-    
-    
 	//SERVO ROULIS angle vertical joystick
     servoDroiteStab.write(map(message.YRoulis, 0, 255, ANGLE_MIN_ROULIS+ANGLE_SECU_SERVO, ANGLE_MAX_ROULIS+ANGLE_SECU_SERVO)); 
 	  servoGaucheStab.write(map(message.YRoulis, 0, 255, ANGLE_MIN_ROULIS+ANGLE_SECU_SERVO, ANGLE_MAX_ROULIS+ANGLE_SECU_SERVO));
@@ -186,8 +151,8 @@ Donnees ecouterRadio()
 	if (message.decollage == 1)
 	{
 		trainAtterissage.write(ANGLE_MAX_TRAIN_ATTERISSAGE); // ON ABAISSE LE TRAIN D'ATTERISSAGE
-		servoAideDecollageGauche.write(ANGLE_SECU_SERVO + ANGLE_MAX_AIDE_DECOLLAGE); // ON ABAISSE LES VOLETS POUR AUGMENTER LA PORTANCE
-    servoAideDecollageDroite.write(ANGLE_SECU_SERVO - ANGLE_MAX_AIDE_DECOLLAGE);
+		servoAideDecollageGauche.write(ANGLE_SECU_SERVO + ANGLE_MAX_VOLET_HYPERSUSTENTATEUR); // ON ABAISSE LES VOLETS POUR AUGMENTER LA PORTANCE
+    servoAideDecollageDroite.write(ANGLE_SECU_SERVO - ANGLE_MAX_VOLET_HYPERSUSTENTATEUR);
 	}
 	else
 	{
@@ -195,73 +160,61 @@ Donnees ecouterRadio()
 		servoAideDecollageGauche.write(ANGLE_SECU_SERVO); // ON REMONTE LES VOLETS POUR AUGMENTER LA PORTANCE 
     servoAideDecollageDroite.write(ANGLE_SECU_SERVO);
 	}
-
-
-  /*Serial.print("   ||   [[");
-  Serial.print(servoEmpLacet.read());
-  Serial.print(",");
-  Serial.print(servoAileDroite.read());
-  Serial.print(",");
-  Serial.print(servoAileGauche.read());
-  Serial.print(",");
-  Serial.print(servoAideDecollageGauche.read());
-  Serial.print(",");
-  Serial.print(servoAideDecollageDroite.read());
-  Serial.print(",");
-  Serial.print(servoGaucheStab.read());
-  Serial.print(",");
-  Serial.print(servoDroiteStab.read());
-  Serial.print(",");
-  Serial.print(decollage.read());
-  Serial.println("]]");*/
-  
 	temps = millis();
 	
   }
   return message;
 }
 
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
 
 
-void arretUrgence()
+// ------------------------------------------------------------------
+
+void testFunction()
 {
-	servoEmpLacet.write(ANGLE_SECU_SERVO);   
+  servoEmpLacet.write(ANGLE_SECU_SERVO);  
   servoAileDroite.write(ANGLE_SECU_SERVO);  
   servoAileGauche.write(ANGLE_SECU_SERVO);  
-  servoAideDecollageGauche.write(ANGLE_SECU_SERVO); 
-  servoAideDecollageDroite.write(ANGLE_SECU_SERVO);     
-  moteurExtDroite.writeMicroseconds(ACC_MIN_MOTEUR);
-  moteurIntDroite.writeMicroseconds(ACC_MIN_MOTEUR);
-  moteurIntGauche.writeMicroseconds(ACC_MIN_MOTEUR);
-  moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR); 
+  servoAideDecollageGauche.write(ANGLE_SECU_SERVO);  
+  servoAideDecollageDroite.write(ANGLE_SECU_SERVO);  
+  moteurExtDroite.writeMicroseconds(ACC_TEST_MOTEUR);
+  moteurIntDroite.writeMicroseconds(ACC_TEST_MOTEUR);
+  moteurIntGauche.writeMicroseconds(ACC_TEST_MOTEUR);
+  moteurExtGauche.writeMicroseconds(ACC_TEST_MOTEUR);
+  servoGaucheStab.write(ANGLE_SECU_SERVO);  
   servoDroiteStab.write(ANGLE_SECU_SERVO);  
-  servoGaucheStab.write(ANGLE_SECU_SERVO);
-  trainAtterissage.write(0); 
-  delay(2000);
-  servoEmpLacet.write(10);  
-  servoAileDroite.write(10);  
-  servoAileGauche.write(10);  
-  servoAideDecollageGauche.write(10); 
-  servoAideDecollageDroite.write(10);     
+  trainAtterissage.write(ANGLE_SECU_SERVO);  
+  
+  temps = millis();
+  while((millis()-temps) < 2000)
+  {
+    printEtatSorties();
+  }
+  
+  servoEmpLacet.write(ANGLE_SECU_SERVO+20);  
+  servoAileDroite.write(ANGLE_SECU_SERVO+20);  
+  servoAileGauche.write(ANGLE_SECU_SERVO+20);  
+  servoAideDecollageGauche.write(ANGLE_SECU_SERVO+20);  
+  servoAideDecollageDroite.write(ANGLE_SECU_SERVO+20);  
   moteurExtDroite.writeMicroseconds(ACC_MIN_MOTEUR);
   moteurIntDroite.writeMicroseconds(ACC_MIN_MOTEUR);
   moteurIntGauche.writeMicroseconds(ACC_MIN_MOTEUR);
-  moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR); 
-  servoDroiteStab.write(10);  
-  servoGaucheStab.write(10);
-  trainAtterissage.write(10); 
+  moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR);
+  servoGaucheStab.write(ANGLE_SECU_SERVO+20);  
+  servoDroiteStab.write(ANGLE_SECU_SERVO+20);  
+  trainAtterissage.write(ANGLE_SECU_SERVO+20); 
+    
+  temps = millis();
+  while((millis()-temps) < 2000)
+  {
+    printEtatSorties();
+  }
+
 }
 
-
-
-
-
-
-
-
+// ------------------------------------------------------------------
+// ------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 void setup() {
 
@@ -281,6 +234,8 @@ void setup() {
   servoGaucheStab.attach(A1);
   servoDroiteStab.attach(A0);
   trainAtterissage.attach(1);
+  
+  delay(15);
 
   // INITIALISATION DES MODULES nrf24l01+
   role =  1 ;
@@ -299,57 +254,31 @@ void setup() {
   
   // Start the radio listening for data
   radio.startListening();
-
-  // INITIALISATION DU COMPTEUR DE TEMPS
-  temps = millis();
   
-  //moteur.writeMicroseconds(ACC_MAX_MOTEUR);
-  //delay(1000);
+  // Initialisation de l'ESC
+  //  (certains ESC ont besoin d'une "procédure d'initialisation"
+  //   pour devenir opérationnels - voir notice)
+  moteurExtDroite.writeMicroseconds(ACC_MAX_MOTEUR);
+  moteurIntDroite.writeMicroseconds(ACC_MAX_MOTEUR);
+  moteurIntGauche.writeMicroseconds(ACC_MAX_MOTEUR);
+  moteurExtGauche.writeMicroseconds(ACC_MAX_MOTEUR);
+  delay(2000);
   moteurExtDroite.writeMicroseconds(ACC_MIN_MOTEUR);
   moteurIntDroite.writeMicroseconds(ACC_MIN_MOTEUR);
   moteurIntGauche.writeMicroseconds(ACC_MIN_MOTEUR);
   moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR);
-  delay(2000);
+  delay(3000);
 
+  // INITIALISATION DU COMPTEUR DE TEMPS
+  temps = millis();
+  
 }
 
-// ------------------------------------------------------------------
 
-void testFunction()
-{
-    servoEmpLacet.write(ANGLE_SECU_SERVO);  
-    servoAileDroite.write(ANGLE_SECU_SERVO);  
-    servoAileGauche.write(ANGLE_SECU_SERVO);  
-    servoAideDecollageGauche.write(ANGLE_SECU_SERVO);  
-    servoAideDecollageDroite.write(ANGLE_SECU_SERVO);  
-    moteurExtDroite.writeMicroseconds(ACC_MIN_MOTEUR);
-    moteurIntDroite.writeMicroseconds(ACC_MIN_MOTEUR);
-    moteurIntGauche.writeMicroseconds(ACC_MIN_MOTEUR);
-    moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR);
-    servoGaucheStab.write(ANGLE_SECU_SERVO);  
-    servoDroiteStab.write(ANGLE_SECU_SERVO);  
-    trainAtterissage.write(ANGLE_SECU_SERVO);  
-
-    delay(3000);
-
-    servoEmpLacet.write(ANGLE_SECU_SERVO+20);  
-    servoAileDroite.write(ANGLE_SECU_SERVO+20);  
-    servoAileGauche.write(ANGLE_SECU_SERVO+20);  
-    servoAideDecollageGauche.write(ANGLE_SECU_SERVO+20);  
-    servoAideDecollageDroite.write(ANGLE_SECU_SERVO+20);  
-    moteurExtDroite.writeMicroseconds(1500);
-    moteurIntDroite.writeMicroseconds(1500);
-    moteurIntGauche.writeMicroseconds(1500);
-    moteurExtGauche.writeMicroseconds(1500);
-    servoGaucheStab.write(ANGLE_SECU_SERVO+20);  
-    servoDroiteStab.write(ANGLE_SECU_SERVO+20);  
-    trainAtterissage.write(ANGLE_SECU_SERVO+20);  
-}
 
 void loop() {
 
     testFunction();
-    printEtatSorties();
     /*ecouterRadio();
       
     if ((millis()-temps) > 3000)
