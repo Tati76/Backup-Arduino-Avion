@@ -103,12 +103,29 @@ void envoyerMessage(uint8_t nombre)
   radio.startListening(); // On se remet en mode écoute
 }
 
+void printMessageRadio(DONNEES &message)
+{
+  Serial.print('[');
+  Serial.print(message.Acc);
+  Serial.print(',');
+  Serial.print(message.LUn);
+  Serial.print(',');
+  Serial.print(message.RUn);
+  Serial.print(',');
+  Serial.print(message.XRoulis);
+  Serial.print(',');
+  Serial.print(message.YRoulis);
+  Serial.print(',');
+  Serial.print(message.decollage);
+  Serial.println(']');
+}
+
 
 // ----------------------------------------------------------------------------------------
 // vérifie si on a reçu une commande de la part de l'autre radio (1 octet)
 // ----------------------------------------------------------------------------------------
 
-DONNEES ecouterRadio()
+void ecouterRadio()
 {
   DONNEES message; // 0 = pas de commande
 
@@ -116,6 +133,8 @@ DONNEES ecouterRadio()
     while (radio.available()) {
       radio.read( &message, sizeof(DONNEES) );  // on lit l'octet reçu (si plusieurs messages on ne conserve que le dernier)
     }
+
+  printMessageRadio(message);
   
     //SERVO ANGLE LACET
 	if (message.LUn == 0 && message.RUn == 255 )
@@ -165,7 +184,10 @@ DONNEES ecouterRadio()
 	temps = millis();
 	
   }
-  return message;
+  else {
+    Serial.println("Aucune entrée");
+  }
+  //return message;
 }
 
 

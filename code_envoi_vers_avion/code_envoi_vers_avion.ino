@@ -40,7 +40,7 @@ typedef struct{
   uint8_t XRoulis;
   uint8_t YRoulis;
   bool decollage;
-} Donnees;
+} DONNEES;
 
 
 
@@ -48,11 +48,11 @@ typedef struct{
 // envoi d'un octet vers l'autre radio
 // ----------------------------------------------------------------------------------------
 
-void envoyerMessage(Donnees nombre)
+void envoyerMessage(DONNEES nombre)
 {
   radio.stopListening();   // On arrête d'écouter pour qu'on puisse émettre
 
-  if (!radio.write( &nombre, sizeof(Donnees) )) {
+  if (!radio.write( &nombre, sizeof(DONNEES) )) {
     //Serial.println(F("erreur d'envoi"));
   }
   radio.startListening(); // On se remet en mode écoute
@@ -131,7 +131,7 @@ uint8_t angleTangage;
 uint8_t angleRoulis;
 long compteur(0);
 
-Donnees msg;
+DONNEES msg;
 
 
 
@@ -166,9 +166,9 @@ void loop() {
 	msg.decollage = decollage;
 	
     // ENVOI DU MESSAGE PAR LE MODULE NRF24L01+
-    envoyerMessage(msg);
+    //envoyerMessage(msg);
     delay(50);
-    /*Serial.print("[");
+    Serial.print("[");
     Serial.print(msg.Acc);
     Serial.print(",");
     Serial.print(msg.LUn);
@@ -180,7 +180,7 @@ void loop() {
     Serial.print(msg.YRoulis);
     Serial.print(",");
     Serial.print(msg.decollage);
-    Serial.println("]");*/
+    Serial.println("]");
 
   }
   
