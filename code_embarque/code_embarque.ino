@@ -89,6 +89,31 @@ void fairePrintMessage(Donnees &message)
   Serial.print("]");
 }
 
+void printEtatSorties()
+{
+  Serial.print("[");
+  Serial.print(digitalRead(A0));
+  Serial.print(",");
+  Serial.print(digitalRead(A1));
+  Serial.print(",");
+  Serial.print(digitalRead(A2));
+  Serial.print(",");
+  Serial.print(digitalRead(A3));
+  Serial.print(",");
+  Serial.print(digitalRead(A4));
+  Serial.print(",");
+  Serial.print(digitalRead(A5));
+  Serial.print(",");
+  Serial.print(digitalRead(1));
+  Serial.print(",");
+  Serial.print(digitalRead(2));
+  Serial.print(",");
+  Serial.print(digitalRead(3));
+  Serial.print(",");
+  Serial.print(digitalRead(4));
+  Serial.print("]");
+}
+
 
 // ----------------------------------------------------------------------------------------
 // envoi d'un octet vers l'autre radio
@@ -117,7 +142,7 @@ Donnees ecouterRadio()
     while (radio.available()) {
       radio.read( &message, sizeof(Donnees) );  // on lit l'octet reçu (si plusieurs messages on ne conserve que le dernier)
     }
-    fairePrintMessage(&message);
+    fairePrintMessage(message);
   
     //SERVO ANGLE LACET
 	if (message.LUn == 0 && message.RUn == 255 )
@@ -142,7 +167,6 @@ Donnees ecouterRadio()
     servoAileGauche.write(map(255-message.XRoulis, 0, 255, ANGLE_MIN_AILETTE_AILE_GAUCHE + ANGLE_SECU_SERVO, ANGLE_MAX_AILETTE_AILE_GAUCHE + ANGLE_SECU_SERVO)); 
 	
 	//MOTEUR
-    moteur.writeMicroseconds(map(message.Acc, 0, 255, ACC_MIN_MOTEUR, ACC_MAX_MOTEUR)); 
 	  moteurExtDroite.writeMicroseconds(map(message.Acc, 0, 255, ACC_MIN_MOTEUR, ACC_MAX_MOTEUR)); 
     moteurIntDroite.writeMicroseconds(map(message.Acc, 0, 255, ACC_MIN_MOTEUR, ACC_MAX_MOTEUR)); 
     moteurIntGauche.writeMicroseconds(map(message.Acc, 0, 255, ACC_MIN_MOTEUR, ACC_MAX_MOTEUR)); 
@@ -270,8 +294,8 @@ void setup() {
   radio.setPALevel(RF24_PA_MIN);
   //radio.setDataRate(RF24_250KBPS);
   
-  radio.openWritingPipe("1pipe"); // role doit être 0 ou 1
-  radio.openReadingPipe(1, "0pipe"); // 1 - role = l'autre adresse
+  radio.openWritingPipe(adresses[role]); // role doit être 0 ou 1
+  radio.openReadingPipe(1, adresses[1-role]); // 1 - role = l'autre adresse
   
   // Start the radio listening for data
   radio.startListening();
@@ -281,7 +305,10 @@ void setup() {
   
   //moteur.writeMicroseconds(ACC_MAX_MOTEUR);
   //delay(1000);
-  moteur.writeMicroseconds(ACC_MIN_MOTEUR);
+  moteurExtDroite.attach(ACC_MIN_MOTEUR);
+  moteurIntDroite.attach(ACC_MIN_MOTEUR);
+  moteurIntGauche.attach(ACC_MIN_MOTEUR);
+  moteurExtGauche.attach(ACC_MIN_MOTEUR);
   delay(2000);
 
   delay(2000);
@@ -292,7 +319,7 @@ void setup() {
 void testFunction()
 {
     servoEmpLacet.write(ANGLE_SECU_SERVO);  
-    servoAileDroite..write(ANGLE_SECU_SERVO);  
+    servoAileDroite.write(ANGLE_SECU_SERVO);  
     servoAileGauche.write(ANGLE_SECU_SERVO);  
     servoAideDecollageGauche.write(ANGLE_SECU_SERVO);  
     servoAideDecollageDroite.write(ANGLE_SECU_SERVO);  
@@ -304,10 +331,10 @@ void testFunction()
     servoDroiteStab.write(ANGLE_SECU_SERVO);  
     trainAtterissage.write(ANGLE_SECU_SERVO);  
 
-    delay(5000);
+    delay(1000);
 
     servoEmpLacet.write(ANGLE_SECU_SERVO+20);  
-    servoAileDroite..write(ANGLE_SECU_SERVO+20);  
+    servoAileDroite.write(ANGLE_SECU_SERVO+20);  
     servoAileGauche.write(ANGLE_SECU_SERVO+20);  
     servoAideDecollageGauche.write(ANGLE_SECU_SERVO+20);  
     servoAideDecollageDroite.write(ANGLE_SECU_SERVO+20);  
@@ -323,7 +350,7 @@ void testFunction()
 void loop() {
 
     testFunction();
-    
+    printEtatSorties();
     /*ecouterRadio();
       
     if ((millis()-temps) > 3000)
