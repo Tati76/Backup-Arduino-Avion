@@ -127,7 +127,7 @@ void printMessageRadio(DONNEES &message)
 
 void ecouterRadio()
 {
-  DONNEES message; // 0 = pas de commande
+  DONNEES message; 
 
   if ( radio.available()) {
     while (radio.available()) {
@@ -305,12 +305,9 @@ void loop() {
   //testFunction();
   ecouterRadio();
       
-  if ((millis()-temps) > 3000)
+  /*if ((millis()-temps) > 3000)
   {
     //arretUrgence();
-    while (1)
-    {
-      Serial.println("AU");
-    }
-  }
+    Serial.println("AU");
+  }*/
 }
