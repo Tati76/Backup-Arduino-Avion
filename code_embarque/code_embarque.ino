@@ -17,7 +17,7 @@
 #define ANGLE_MAX_ROULIS 50 // angle vertical joystick
 #define ANGLE_MIN_ROULIS -50 // angle vertical joystick
 #define ACC_MAX_MOTEUR 2000
-#define ACC_MIN_MOTEUR 1000
+#define ACC_MIN_MOTEUR 1200
 #define ANGLE_MAX_TRAIN_ATTERISSAGE 170
 #define ANGLE_MIN_TRAIN_ATTERISSAGE 10
 #define ANGLE_SECU_SERVO 90
@@ -305,10 +305,10 @@ void setup() {
   
   //moteur.writeMicroseconds(ACC_MAX_MOTEUR);
   //delay(1000);
-  moteurExtDroite.attach(ACC_MIN_MOTEUR);
-  moteurIntDroite.attach(ACC_MIN_MOTEUR);
-  moteurIntGauche.attach(ACC_MIN_MOTEUR);
-  moteurExtGauche.attach(ACC_MIN_MOTEUR);
+  moteurExtDroite.writeMicroseconds(ACC_MIN_MOTEUR);
+  moteurIntDroite.writeMicroseconds(ACC_MIN_MOTEUR);
+  moteurIntGauche.writeMicroseconds(ACC_MIN_MOTEUR);
+  moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR);
   delay(2000);
 
   delay(2000);
@@ -323,10 +323,10 @@ void testFunction()
     servoAileGauche.write(ANGLE_SECU_SERVO);  
     servoAideDecollageGauche.write(ANGLE_SECU_SERVO);  
     servoAideDecollageDroite.write(ANGLE_SECU_SERVO);  
-    moteurExtDroite.attach(ACC_MIN_MOTEUR);
-    moteurIntDroite.attach(ACC_MIN_MOTEUR);
-    moteurIntGauche.attach(ACC_MIN_MOTEUR);
-    moteurExtGauche.attach(ACC_MIN_MOTEUR);
+    moteurExtDroite.writeMicroseconds(ACC_MIN_MOTEUR);
+    moteurIntDroite.writeMicroseconds(ACC_MIN_MOTEUR);
+    moteurIntGauche.writeMicroseconds(ACC_MIN_MOTEUR);
+    moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR);
     servoGaucheStab.write(ANGLE_SECU_SERVO);  
     servoDroiteStab.write(ANGLE_SECU_SERVO);  
     trainAtterissage.write(ANGLE_SECU_SERVO);  
@@ -338,10 +338,10 @@ void testFunction()
     servoAileGauche.write(ANGLE_SECU_SERVO+20);  
     servoAideDecollageGauche.write(ANGLE_SECU_SERVO+20);  
     servoAideDecollageDroite.write(ANGLE_SECU_SERVO+20);  
-    moteurExtDroite.attach(ACC_MAX_MOTEUR);
-    moteurIntDroite.attach(ACC_MAX_MOTEUR);
-    moteurIntGauche.attach(ACC_MAX_MOTEUR);
-    moteurExtGauche.attach(ACC_MAX_MOTEUR);
+    moteurExtDroite.writeMicroseconds(ACC_MAX_MOTEUR);
+    moteurIntDroite.writeMicroseconds(ACC_MAX_MOTEUR);
+    moteurIntGauche.writeMicroseconds(ACC_MAX_MOTEUR);
+    moteurExtGauche.writeMicroseconds(ACC_MAX_MOTEUR);
     servoGaucheStab.write(ANGLE_SECU_SERVO+20);  
     servoDroiteStab.write(ANGLE_SECU_SERVO+20);  
     trainAtterissage.write(ANGLE_SECU_SERVO+20);  
