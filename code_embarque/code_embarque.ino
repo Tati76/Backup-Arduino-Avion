@@ -2,6 +2,9 @@
 #include <SPI.h>
 #include <RF24.h> // voir http://tmrh20.github.io/RF24/
 #include <Servo.h>
+
+
+
 // Variables pour les angles des ailettes
 #define ANGLE_MAX_AILETTE_AILE_GAUCHE 60
 #define ANGLE_MIN_AILETTE_AILE_GAUCHE -60
@@ -21,6 +24,16 @@
 
 unsigned long temps;
 
+// *********************************** STRUCTURE RADIO ************************************
+
+typedef struct {
+  uint8_t Acc; //moteur
+  uint8_t LUn; // servoEmpLacet 
+  uint8_t RUn; // servoEmpLacet 
+  uint8_t XRoulis; // servoAileGauche et servoAileDroite
+  uint8_t YRoulis; // servoDroiteStab et servoGaucheStab
+  bool decollage; // si train d'atterissage alors aide à l'atterissage/decollage
+} DONNEES;
 
 
 // ********************************** SERVO *************************************
@@ -38,24 +51,6 @@ Servo servoRoulis; // angle vertical joystick
 Servo servoDroiteStab;
 Servo servoGaucheStab;
 Servo trainAtterissage;
-
-
-// *********************************** RADIO ************************************
-// Configurer vos radio nRF24L01+ sur le bus SPI et mettre  CE sur D7 et CSN sur D8
-RF24 radio(7, 8);
-const byte adresses[][6] = {"0pipe", "1pipe"}; 
-uint8_t role;
-
-typedef struct{
-  uint8_t Acc; //moteur
-  uint8_t LUn; // servoEmpLacet 
-  uint8_t RUn; // servoEmpLacet 
-  uint8_t XRoulis; // servoAileGauche et servoAileDroite
-  uint8_t YRoulis; // servoDroiteStab et servoGaucheStab
-  bool decollage; // si train d'atterissage alors aide à l'atterissage/decollage
-  
-} Donnees;
-
 
 void printEtatSorties()
 {
@@ -87,10 +82,17 @@ void printEtatSorties()
 }
 
 
+// *********************************** RADIO ************************************
+// Configurer vos radio nRF24L01+ sur le bus SPI et mettre  CE sur D7 et CSN sur D8
+RF24 radio(7, 8);
+const byte adresses[][6] = {"0pipe", "1pipe"}; 
+uint8_t role;
+long compteur(0);
+
 // ----------------------------------------------------------------------------------------
 // envoi d'un octet vers l'autre radio
 // ----------------------------------------------------------------------------------------
-long compteur(0);
+
 void envoyerMessage(uint8_t nombre)
 {
   radio.stopListening();   // On arrête d'écouter pour qu'on puisse émettre
@@ -102,17 +104,17 @@ void envoyerMessage(uint8_t nombre)
 }
 
 
-
 // ----------------------------------------------------------------------------------------
 // vérifie si on a reçu une commande de la part de l'autre radio (1 octet)
 // ----------------------------------------------------------------------------------------
-Donnees ecouterRadio()
+
+DONNEES ecouterRadio()
 {
-  Donnees message; // 0 = pas de commande
+  DONNEES message; // 0 = pas de commande
 
   if ( radio.available()) {
     while (radio.available()) {
-      radio.read( &message, sizeof(Donnees) );  // on lit l'octet reçu (si plusieurs messages on ne conserve que le dernier)
+      radio.read( &message, sizeof(DONNEES) );  // on lit l'octet reçu (si plusieurs messages on ne conserve que le dernier)
     }
   
     //SERVO ANGLE LACET
@@ -277,13 +279,16 @@ void setup() {
 
 
 void loop() {
-
-    testFunction();
-    /*ecouterRadio();
+  
+  //testFunction();
+  ecouterRadio();
       
-    if ((millis()-temps) > 3000)
+  if ((millis()-temps) > 3000)
+  {
+    //arretUrgence();
+    while (1)
     {
-		arretUrgence();
-    Serial.println("AU");
-    }*/
+      Serial.println("AU");
+    }
+  }
 }
