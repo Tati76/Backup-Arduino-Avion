@@ -330,17 +330,17 @@ void testFunction()
     servoDroiteStab.write(ANGLE_SECU_SERVO);  
     trainAtterissage.write(ANGLE_SECU_SERVO);  
 
-    delay(1000);
+    delay(3000);
 
     servoEmpLacet.write(ANGLE_SECU_SERVO+20);  
     servoAileDroite.write(ANGLE_SECU_SERVO+20);  
     servoAileGauche.write(ANGLE_SECU_SERVO+20);  
     servoAideDecollageGauche.write(ANGLE_SECU_SERVO+20);  
     servoAideDecollageDroite.write(ANGLE_SECU_SERVO+20);  
-    moteurExtDroite.writeMicroseconds(ACC_MAX_MOTEUR);
-    moteurIntDroite.writeMicroseconds(ACC_MAX_MOTEUR);
-    moteurIntGauche.writeMicroseconds(ACC_MAX_MOTEUR);
-    moteurExtGauche.writeMicroseconds(ACC_MAX_MOTEUR);
+    moteurExtDroite.writeMicroseconds(1500);
+    moteurIntDroite.writeMicroseconds(1500);
+    moteurIntGauche.writeMicroseconds(1500);
+    moteurExtGauche.writeMicroseconds(1500);
     servoGaucheStab.write(ANGLE_SECU_SERVO+20);  
     servoDroiteStab.write(ANGLE_SECU_SERVO+20);  
     trainAtterissage.write(ANGLE_SECU_SERVO+20);  
