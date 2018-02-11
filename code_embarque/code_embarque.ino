@@ -17,7 +17,7 @@
 #define ANGLE_MAX_ROULIS 50 // angle vertical joystick
 #define ANGLE_MIN_ROULIS -50 // angle vertical joystick
 #define ACC_MAX_MOTEUR 2000
-#define ACC_MIN_MOTEUR 1200
+#define ACC_MIN_MOTEUR 1000
 #define ANGLE_MAX_TRAIN_ATTERISSAGE 170
 #define ANGLE_MIN_TRAIN_ATTERISSAGE 10
 #define ANGLE_SECU_SERVO 90
@@ -311,7 +311,6 @@ void setup() {
   moteurExtGauche.writeMicroseconds(ACC_MIN_MOTEUR);
   delay(2000);
 
-  delay(2000);
 }
 
 // ------------------------------------------------------------------
