@@ -90,17 +90,17 @@ void setup() {
   radio.begin();
   // pour le test on règle le niveau d'énergie à RF24_PA_LOW pour éviter les interférences
   // mettre à RF24_PA_MAX si on veut la puissance d'émission max
-  radio.setPALevel(RF24_PA_LOW);
+  radio.setPALevel(RF24_PA_HIGH);
 
   // On ouvre un pipe de lecture et un d'écriture avec des noms opposés en fonction du rôle
   // comme ça un parle sur "pipe0" et l'autre écoute sur "pipe0"
   // et l'autre parle sur "pipe1" tandisque Le premier écoute sur "pipe1"
 
-  radio.openWritingPipe(adresses[role]); // role doit être 0 ou 1
-  radio.openReadingPipe(1, adresses[1 - role]); // 1 - role = l'autre adresse
+  radio.openWritingPipe(adresses[0]); // role doit être 0 ou 1
+  radio.openReadingPipe(1, adresses[1]); // 1 - role = l'autre adresse
 
   // Start the radio listening for data
-  radio.startListening();
+  //radio.startListening();
 
 
   // INIT Manette
@@ -166,8 +166,8 @@ void loop() {
 	msg.decollage = decollage;
 	
     // ENVOI DU MESSAGE PAR LE MODULE NRF24L01+
-    //envoyerMessage(msg);
-    delay(50);
+    envoyerMessage(msg);
+    delay(25);
     Serial.print("[");
     Serial.print(msg.Acc);
     Serial.print(",");

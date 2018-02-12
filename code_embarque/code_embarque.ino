@@ -38,7 +38,7 @@ typedef struct {
 
 // ********************************** SERVO *************************************
 
-Servo servoEmpLacet;
+Servo servoEmpLacet; // angle Lacet
 Servo servoAileDroite;
 Servo servoAileGauche;
 Servo servoAideDecollageGauche;
@@ -47,9 +47,8 @@ Servo moteurExtDroite;
 Servo moteurIntDroite;
 Servo moteurIntGauche;
 Servo moteurExtGauche;
-Servo servoRoulis; // angle vertical joystick
-Servo servoDroiteStab;
-Servo servoGaucheStab;
+Servo servoDroiteStab; // angle vertical joystick tanguage
+Servo servoGaucheStab; // angle vertical joystick tanguage
 Servo trainAtterissage;
 
 void printEtatSorties()
@@ -63,7 +62,7 @@ void printEtatSorties()
   Serial.print(',');
   Serial.print(servoAideDecollageGauche.read());
   Serial.print(',');
-  Serial.print(servoAideDecollageDroite.read());
+  Serial.print(servoAideDecollageDroite.read()); 
   Serial.print(',');
   Serial.print(moteurExtDroite.read());
   Serial.print(',');
@@ -134,14 +133,14 @@ void ecouterRadio()
       radio.read( &message, sizeof(DONNEES) );  // on lit l'octet reçu (si plusieurs messages on ne conserve que le dernier)
     }
 
-  printMessageRadio(message);
+  //printMessageRadio(message);
   
     //SERVO ANGLE LACET
-	if (message.LUn == 0 && message.RUn == 255 )
+	if (message.LUn == 0 && message.RUn == 1 )
 	{
 		servoEmpLacet.write(ANGLE_SECU_SERVO+ANGLE_MAX_LACET); 
 	}
-	else if (message.LUn == 255 && message.RUn == 0 )
+	else if (message.LUn == 1 && message.RUn == 0 )
 	{
 		servoEmpLacet.write(ANGLE_SECU_SERVO+ANGLE_MIN_LACET);
 	}
@@ -185,7 +184,7 @@ void ecouterRadio()
 	
   }
   else {
-    Serial.println("Aucune entrée");
+    //Serial.println("Aucune entrée");
   }
   //return message;
 }
@@ -270,11 +269,11 @@ void setup() {
   // pour le test on règle le niveau d'énergie à RF24_PA_LOW pour éviter les interférences
   
   // mettre à RF24_PA_MAX si on veut la puissance d'émission max
-  radio.setPALevel(RF24_PA_MIN);
+  radio.setPALevel(RF24_PA_HIGH); //RF24_PA_LOW
   //radio.setDataRate(RF24_250KBPS);
   
-  radio.openWritingPipe(adresses[role]); // role doit être 0 ou 1
-  radio.openReadingPipe(1, adresses[1-role]); // 1 - role = l'autre adresse
+  radio.openWritingPipe(adresses[1]); // role doit être 0 ou 1
+  radio.openReadingPipe(1, adresses[0]); // 1 - role = l'autre adresse
   
   // Start the radio listening for data
   radio.startListening();
@@ -304,7 +303,7 @@ void loop() {
   
   //testFunction();
   ecouterRadio();
-      
+  printEtatSorties();
   /*if ((millis()-temps) > 3000)
   {
     //arretUrgence();
